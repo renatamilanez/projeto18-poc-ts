@@ -1,5 +1,6 @@
 import httpStatus from "http-status";
-import {Request, Response} from "express";import * as moviesRepository from "../repositories/movies-repository.js";
+import {Request, Response} from "express";
+import * as moviesRepository from "../repositories/movies-repository.js";
 import {Movie} from "../protocols/Movie";
 import {Review} from "../protocols/Review";
 
