@@ -1,42 +1,38 @@
 import { QueryResult } from "pg";
 import {connection} from "../database/db.js";
 
-//rota get /movies
 async function getAllMovies(){
     return connection.query(
-        `SELECT movies.name AS name,
-        genres.genre AS genre,
-        plataforms.name AS plataform,
-        FROM movies
-        JOIN genres
-        ON movies."id" = genres."movieId"
-        JOIN "moviePlataform"
-        ON movies."id" = "moviePlataform"."movieId"
-        JOIN plataforms
-        ON "moviePlataform"."id" = plataforms."id";
-        `
+        `SELECT movies.name AS name, 
+            genres.genre AS genre, 
+            plataforms.name AS plataform 
+            FROM movies 
+            JOIN genres 
+            ON movies.id = genres."movieId" 
+            LEFT JOIN "moviePlataform" 
+            ON "moviePlataform"."movieId" = movies.id 
+            LEFT JOIN plataforms 
+            ON plataforms.id = "moviePlataform"."plataformId";`
     );
 }
 
-//rota get /movies/:movieId
-async function getMovie(movieId: number): Promise<QueryResult<String>> {
+async function getMovie(movieId: number){
     return connection.query(
-        `SELECT movies.name AS name,
-        genres.genre AS genre,
-        plataforms.name AS plataform,
-        FROM movies
-        JOIN genres
-        ON movies."id" = genres."movieId"
-        JOIN "moviePlataform"
-        ON movies."id" = "moviePlataform"."movieId"
-        JOIN plataforms
-        ON "moviePlataform"."id" = plataforms."id"
-        WHERE movie.id = $1;`,
+        `SELECT movies.name AS name, 
+        genres.genre AS genre, 
+        plataforms.name AS plataform 
+        FROM movies 
+        JOIN genres 
+        ON movies.id = genres."movieId" 
+        LEFT JOIN "moviePlataform" 
+        ON "moviePlataform"."movieId" = movies.id 
+        LEFT JOIN plataforms 
+        ON plataforms.id = "moviePlataform"."plataformId"
+        WHERE movies.id = $1;`,
         [movieId]
     );
 }
 
-//rota get /movies/:plataformId
 async function getMoviesByPlataform(plataformId: number){
     return connection.query(
         `SELECT movies.name AS name,
@@ -53,7 +49,6 @@ async function getMoviesByPlataform(plataformId: number){
     );
 }
 
-//rota post /movies recebendo name, genre e plataform pelo body
 async function postMovie(name: string, genre: string, plataform: string){
     const plataformId: Promise<QueryResult<Number>> = (await connection.query(
         `SELECT id 
@@ -82,9 +77,66 @@ async function postMovie(name: string, genre: string, plataform: string){
     );
 }
 
+async function getWishlist(userId: number){
+    return connection.query(`
+        SELECT movies.name AS name, 
+        genres.genre AS genre, 
+        plataforms.name AS plataform 
+        FROM movies 
+        JOIN genres 
+        ON movies.id = genres."movieId" 
+        LEFT JOIN "moviePlataform" 
+        ON "moviePlataform"."movieId" = movies.id 
+        LEFT JOIN plataforms 
+        ON plataforms.id = "moviePlataform"."plataformId"
+        LEFT JOIN "movieStatus"
+        ON "movieStatus"."movieId" = movies.id
+        WHERE "movieStatus"."userId" = $1;`,
+        [userId]
+    );
+}
+
+async function addMovieToWishlist(userId: number, movieId: number){
+    return connection.query(`
+        INSERT INTO "movieStatus" ("userId", "movieId")
+        VALUES ($1, $2);`,
+        [userId, movieId]
+        );
+}
+
+async function watchedNumber(userId: number, movieId: number){
+    return connection.query(
+        `SELECT "watchCount"
+        FROM "movieStatus"
+        WHERE "userId" = $1 
+        AND "movieId" = $2;`,
+        [userId, movieId]
+    );
+}
+
+async function changeStatus(userId: number, movieId: number, status: string, rating: number, comments: string, watchCount: number){
+    return connection.query(`
+        UPDATE "movieStatus" SET "comments" = $1, "rating" = $2, status = $3, "watchCount" = $4 WHERE "userId" = $5 AND "movieId" = $6`,
+        [comments, rating, status, watchCount, userId, movieId]
+        );
+}
+
+async function deleteReview(userId: number, movieId: number){
+    return connection.query(
+        `DELETE FROM "movieStatus"
+        WHERE "userId" = $1 AND "movieId" = $2`,
+        [userId, movieId]
+    );
+}
+
 export {
     getAllMovies, 
     getMovie, 
     getMoviesByPlataform,
     postMovie,
+    getWishlist,
+    addMovieToWishlist,
+    changeStatus,
+    deleteReview,
+    watchedNumber
 };

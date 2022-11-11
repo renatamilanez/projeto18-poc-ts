@@ -1,13 +1,15 @@
 import express from "express";
-import {getMovies, getMovieById, getMoviesByPlataform, postMovie, updateMovie, deleteMovie} from "../controllers/movie-controllers"
+import {getMovies, getMovieById, getMoviesByPlataform, postMovie, getWishlist, addMovieToWishlist, deleteMovie, changeStatus} from "../controllers/movie-controllers.js";
 
 const router = express.Router();
 
 router.get('/movies', getMovies);
 router.get('/movies/:movieId', getMovieById);
-router.get('/movies/:plataformId', getMoviesByPlataform);
-router.post('/movies/:movieId', postMovie);
-router.put('/movies', updateMovie);
-router.delete('/movies', deleteMovie);
+router.get('/movies/plataform/:plataformId', getMoviesByPlataform);
+router.post('/movies', postMovie);
+router.get('/wishlist', getWishlist)
+router.post('/wishlist/:movieId', addMovieToWishlist);
+router.put('/movies/:movieId', changeStatus);
+router.delete('/movies/:movieId', deleteMovie);
 
 export default router;

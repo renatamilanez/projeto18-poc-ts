@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
-import {Request, Response} from "express";
-import { QueryResult } from "pg";
-import * as moviesRepository from "../repositories/movies-repository";
+import {Request, Response} from "express";import * as moviesRepository from "../repositories/movies-repository.js";
+import {Movie} from "../protocols/Movie";
+import {Review} from "../protocols/Review";
 
 async function getMovies(req: Request, res: Response){
     try {
@@ -9,6 +9,7 @@ async function getMovies(req: Request, res: Response){
 
         return res.status(httpStatus.OK).send(movies);
     } catch (error) {
+        console.error(error);
         return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
     }
 }
@@ -21,6 +22,7 @@ async function getMovieById(req: Request, res: Response){
 
         return res.status(httpStatus.OK).send(movie);
     } catch (error) {
+        console.error(error);
         return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
     }
 }
@@ -33,30 +35,81 @@ async function getMoviesByPlataform(req: Request, res: Response){
 
         return res.status(httpStatus.OK).send(movies);
     } catch (error) {
+        console.error(error);
         return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
 async function postMovie(req: Request, res: Response){
+    const newMovie = req.body as Movie;
+
     try {
-        
+        await moviesRepository.postMovie(newMovie.name, newMovie.genre, newMovie.plataform);
+
+        return res.sendStatus(httpStatus.CREATED);
     } catch (error) {
+        console.error(error);
         return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
-async function updateMovie(req: Request, res: Response){
+async function getWishlist(req: Request, res: Response){
+    const userId: number = res.locals.userId;
+
     try {
-        
+        const wishlist = (await moviesRepository.getWishlist(userId)).rows;
+
+        return res.status(httpStatus.OK).send(wishlist)
     } catch (error) {
+        console.error(error);
+        return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function addMovieToWishlist(req: Request, res: Response){
+    const userId: number = res.locals.userId;
+    const movieId: number = Number(req.params.movieId);
+
+    try {
+        await moviesRepository.addMovieToWishlist(userId, movieId);
+
+        return res.sendStatus(httpStatus.CREATED);
+    } catch (error) {
+        console.error(error);
+        return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+
+async function changeStatus(req: Request, res: Response){
+    const userId: number = res.locals.userId;
+    const movieId: number = Number(req.params.movieId);
+    const review = req.body as Review;
+    const status: string = 'Watched';
+
+    try {
+        let watchCount: number = (await moviesRepository.watchedNumber(userId, movieId)).rows[0].watchCount;
+
+        watchCount += 1;
+
+        await moviesRepository.changeStatus(userId, movieId, status, review.rating, review.comments, watchCount);
+
+        return res.sendStatus(httpStatus.OK);
+    } catch (error) {
+        console.error(error);
         return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
 async function deleteMovie(req: Request, res: Response){
+    const userId = res.locals.userId;
+    const movieId: number = Number(req.params.movieId);
+
     try {
-        
+        await moviesRepository.deleteReview(userId, movieId);
+
+        return res.sendStatus(httpStatus.NO_CONTENT);
     } catch (error) {
+        console.error(error);
         return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
     }
 }
@@ -66,6 +119,8 @@ export {
     getMovieById,
     getMoviesByPlataform,
     postMovie, 
-    updateMovie, 
+    getWishlist,
+    addMovieToWishlist,
+    changeStatus, 
     deleteMovie
 };

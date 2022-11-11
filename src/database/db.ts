@@ -3,13 +3,13 @@ import pg from "pg";
 
 const {Pool} = pg;
 
-dotenv.config({path: "../.env"});
+dotenv.config();
 
 const databaseConfig = {
     connectionString: process.env.DATABASE_URL,
-    ssl: {
+    /*ssl: {
         rejectUnauthorized: false
-    }
+    }*/
 };
 
 const connection = new Pool(databaseConfig);
