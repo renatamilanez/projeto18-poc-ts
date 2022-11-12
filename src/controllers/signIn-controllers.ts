@@ -6,7 +6,6 @@ import { Login } from "../protocols/Login";
 import {stripHtml} from "string-strip-html";
 import httpStatus from "http-status";
 import * as signInRepository from "../repositories/signIn-repository.js";
-import { QueryResult } from "pg";
 
 async function signIn(req: Request, res: Response){
     const loginData = req.body as Login;
@@ -29,13 +28,13 @@ async function signIn(req: Request, res: Response){
 
         const userPassword = await signInRepository.hasPassword(email);
 
-        const isValid = bcrypt.compareSync(password, userPassword);
+        const isValid: boolean = bcrypt.compareSync(password, userPassword);
 
         if(!isValid){
             return res.sendStatus(httpStatus.UNAUTHORIZED);
         }
 
-        const token = uuidv4();
+        const token: string = uuidv4();
 
         await signInRepository.postUser(email, token);
         

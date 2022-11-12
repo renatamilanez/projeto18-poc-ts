@@ -11,9 +11,9 @@ async function signUp(req: Request, res: Response){
     const name: string = stripHtml(signUpData.name).result.trim();
     const email: string = stripHtml(signUpData.email).result.trim();
     const password: string = stripHtml(signUpData.password).result.trim();
-    const confirmPassword = signUpData.confirmPassword;
+    const confirmPassword: string = signUpData.confirmPassword;
 
-    const hashPassword = bcrypt.hashSync(password, 10);
+    const hashPassword: string = bcrypt.hashSync(password, 10);
 
     try {
         const validation = userSchema.validate({name, email, password, confirmPassword}, {abortEarly: false});

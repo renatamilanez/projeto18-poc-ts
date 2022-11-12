@@ -4,11 +4,10 @@ import * as moviesRepository from "../repositories/movies-repository.js";
 import {Movie} from "../protocols/Movie";
 import {Review} from "../protocols/Review";
 import {movieSchema, reviewSchema} from "../schemas/schemas.js";
-import { QueryResult } from "pg";
 
-async function getMovies(req: Request, res: Response){
+async function getMovies(req: Request, res: Response) {
     try {
-        const movies: string[] = (await moviesRepository.getAllMovies()).rows;
+        const movies: Movie[] = (await moviesRepository.getAllMovies()).rows;
 
         return res.status(httpStatus.OK).send(movies);
     } catch (error) {
@@ -21,7 +20,7 @@ async function getMovieById(req: Request, res: Response){
     const movieId: number = Number(req.params.movieId);
 
     try {
-        const movie = (await moviesRepository.getMovie(movieId)).rows[0];
+        const movie: Movie = (await moviesRepository.getMovie(movieId)).rows[0];
 
         return res.status(httpStatus.OK).send(movie);
     } catch (error) {
@@ -34,7 +33,7 @@ async function getMoviesByPlataform(req: Request, res: Response){
     const plataformId: number = Number(req.params.plataformId);
 
     try {
-        const movies = (await moviesRepository.getMoviesByPlataform(plataformId)).rows;
+        const movies: Movie[] = (await moviesRepository.getMoviesByPlataform(plataformId)).rows;
 
         return res.status(httpStatus.OK).send(movies);
     } catch (error) {
@@ -67,7 +66,7 @@ async function getWishlist(req: Request, res: Response){
     const userId: number = res.locals.userId;
 
     try {
-        const wishlist = (await moviesRepository.getWishlist(userId)).rows;
+        const wishlist: Movie[] = (await moviesRepository.getWishlist(userId)).rows;
 
         return res.status(httpStatus.OK).send(wishlist)
     } catch (error) {
@@ -153,7 +152,7 @@ async function changeStatus(req: Request, res: Response){
 }
 
 async function deleteMovie(req: Request, res: Response){
-    const userId = res.locals.userId;
+    const userId: number = res.locals.userId;
     const movieId: number = Number(req.params.movieId);
 
     try {
