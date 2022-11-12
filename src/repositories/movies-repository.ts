@@ -1,9 +1,11 @@
 import { QueryResult } from "pg";
 import {connection} from "../database/db.js";
+import { MovieEntity} from "../protocols/Movie.js"
 
-async function getAllMovies(){
+async function getAllMovies(): Promise<QueryResult<MovieEntity>>{
     return connection.query(
-        `SELECT movies.name AS name, 
+        `SELECT movies.id AS id,
+            movies.name AS name, 
             genres.genre AS genre, 
             plataforms.name AS plataform 
             FROM movies 
@@ -16,9 +18,10 @@ async function getAllMovies(){
     );
 }
 
-async function getMovie(movieId: number){
+async function getMovie(movieId: number): Promise<QueryResult<MovieEntity>>{
     return connection.query(
-        `SELECT movies.name AS name, 
+        `SELECT movies.id AS id,
+        movies.name AS name, 
         genres.genre AS genre, 
         plataforms.name AS plataform 
         FROM movies 
@@ -33,9 +36,10 @@ async function getMovie(movieId: number){
     );
 }
 
-async function getMoviesByPlataform(plataformId: number){
+async function getMoviesByPlataform(plataformId: number): Promise<QueryResult<MovieEntity>> {
     return connection.query(
-        `SELECT movies.name AS name,
+        `SELECT movies.id AS id,
+        movies.name AS name,
         genres.genre AS genre
         FROM plataforms
         JOIN "moviePlataform"
@@ -49,7 +53,7 @@ async function getMoviesByPlataform(plataformId: number){
     );
 }
 
-async function postMovie(name: string, genre: string, plataform: string){
+async function postMovie(name: string, genre: string, plataform: string): Promise<QueryResult<String>> {
     const plataformId: Promise<QueryResult<Number>> = (await connection.query(
         `SELECT id 
         FROM plataforms
@@ -77,9 +81,10 @@ async function postMovie(name: string, genre: string, plataform: string){
     );
 }
 
-async function getWishlist(userId: number){
+async function getWishlist(userId: number): Promise<QueryResult<MovieEntity>> {
     return connection.query(`
-        SELECT movies.name AS name, 
+        SELECT movies.id AS id,
+        movies.name AS name, 
         genres.genre AS genre, 
         plataforms.name AS plataform 
         FROM movies 
@@ -96,7 +101,7 @@ async function getWishlist(userId: number){
     );
 }
 
-async function isMovieValid(movieId: number){
+async function isMovieValid(movieId: number): Promise<QueryResult<String>> {
     return connection.query(`
         SELECT "name"
         FROM movies
@@ -105,7 +110,7 @@ async function isMovieValid(movieId: number){
     );
 }
 
-async function hasAddedToWishlist(userId: number, movieId: number) {
+async function hasAddedToWishlist(userId: number, movieId: number): Promise<QueryResult<String>> {
     return connection.query(`
     SELECT * 
     FROM "movieStatus" 
@@ -115,7 +120,7 @@ async function hasAddedToWishlist(userId: number, movieId: number) {
 );
 }
 
-async function addMovieToWishlist(userId: number, movieId: number){
+async function addMovieToWishlist(userId: number, movieId: number): Promise<QueryResult<String>>{
     return connection.query(`
         INSERT INTO "movieStatus" ("userId", "movieId")
         VALUES ($1, $2);`,
@@ -123,7 +128,13 @@ async function addMovieToWishlist(userId: number, movieId: number){
         );
 }
 
-async function addMovieWithReview(userId: number, movieId: number, status: string, rating: number, comments: string, watchCount: number){
+async function addMovieWithReview(
+    userId: number, 
+    movieId: number, 
+    status: string, 
+    rating: number, 
+    comments: string, 
+    watchCount: number): Promise<QueryResult<String>>{
     return connection.query(`
         INSERT INTO "movieStatus" ("userId", "movieId", "comments", "rating", "status", "watchCount")
         VALUES ($1, $2, $3, $4, $5, $6);`,
@@ -141,14 +152,21 @@ async function watchedNumber(userId: number, movieId: number){
     );
 }
 
-async function changeStatus(userId: number, movieId: number, status: string, rating: number, comments: string, watchCount: number){
+async function changeStatus(
+    userId: number, 
+    movieId: number, 
+    status: string, 
+    rating: number, 
+    comments: string, 
+    watchCount: number
+    ): Promise<QueryResult<String>>{
     return connection.query(`
         UPDATE "movieStatus" SET "comments" = $1, "rating" = $2, status = $3, "watchCount" = $4 WHERE "userId" = $5 AND "movieId" = $6`,
         [comments, rating, status, watchCount, userId, movieId]
         );
 }
 
-async function deleteReview(userId: number, movieId: number){
+async function deleteReview(userId: number, movieId: number): Promise<QueryResult<String>> {
     return connection.query(
         `DELETE FROM "movieStatus"
         WHERE "userId" = $1 AND "movieId" = $2`,

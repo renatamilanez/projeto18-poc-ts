@@ -1,28 +1,19 @@
-import { stripHtml } from "string-strip-html";
-import {userSchema} from "../schemas/schemas.js";
-import bcrypt from 'bcrypt';
 import * as signUpRepository from "../repositories/signUp-repository.js";
 import { SignUp } from "../protocols/SignUp.js";
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 import httpStatus from "http-status";
+import {signUpMiddleware} from "../middlewares/signUp-middleware.js";
 
-async function signUp(req: Request, res: Response){
+async function signUp(req: Request, res: Response, next: NextFunction){
     const signUpData = req.body as SignUp;
-    const name: string = stripHtml(signUpData.name).result.trim();
-    const email: string = stripHtml(signUpData.email).result.trim();
-    const password: string = stripHtml(signUpData.password).result.trim();
-    const confirmPassword: string = signUpData.confirmPassword;
 
-    const hashPassword: string = bcrypt.hashSync(password, 10);
+    await signUpMiddleware(req, res, signUpData);
+
+    const name: string = res.locals.name;
+    const email: string = res.locals.email;
+    const hashPassword: string = res.locals.hashPassword;
 
     try {
-        const validation = userSchema.validate({name, email, password, confirmPassword}, {abortEarly: false});
-
-        if(validation.error){
-            const errors = validation.error.details.map(detail => detail.message);
-            return res.status(httpStatus.UNPROCESSABLE_ENTITY).send(errors);
-        }
-
         const duplicate = await signUpRepository.hasUser(email);
         
         if(duplicate.rows.length > 0){

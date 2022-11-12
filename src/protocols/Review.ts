@@ -1,4 +1,7 @@
 export type Review = {
     comments?: string,
-    rating?: number
+    rating?: number,
+    status?: string,
+    userId: number,
+    movieId: number
 }

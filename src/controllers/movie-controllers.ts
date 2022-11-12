@@ -1,13 +1,13 @@
 import httpStatus from "http-status";
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 import * as moviesRepository from "../repositories/movies-repository.js";
 import {Movie} from "../protocols/Movie";
 import {Review} from "../protocols/Review";
-import {movieSchema, reviewSchema} from "../schemas/schemas.js";
+import {newMovieMiddleware, changeStatusMiddleware} from "../middlewares/movies-middleware.js";
 
 async function getMovies(req: Request, res: Response) {
     try {
-        const movies: Movie[] = (await moviesRepository.getAllMovies()).rows;
+        const movies = (await moviesRepository.getAllMovies()).rows;
 
         return res.status(httpStatus.OK).send(movies);
     } catch (error) {
@@ -33,7 +33,7 @@ async function getMoviesByPlataform(req: Request, res: Response){
     const plataformId: number = Number(req.params.plataformId);
 
     try {
-        const movies: Movie[] = (await moviesRepository.getMoviesByPlataform(plataformId)).rows;
+        const movies = (await moviesRepository.getMoviesByPlataform(plataformId)).rows;
 
         return res.status(httpStatus.OK).send(movies);
     } catch (error) {
@@ -42,17 +42,12 @@ async function getMoviesByPlataform(req: Request, res: Response){
     }
 }
 
-async function postMovie(req: Request, res: Response){
+async function postMovie(req: Request, res: Response, next: NextFunction){
     const newMovie = req.body as Movie;
 
+    newMovieMiddleware(req, res, next, newMovie);
+
     try {
-        const validation = movieSchema.validate({newMovie}, {abortEarly: false});
-
-        if(validation.error){
-            const errors = validation.error.details.map(detail => detail.message);
-            return res.status(httpStatus.UNPROCESSABLE_ENTITY).send(errors);
-        }
-
         await moviesRepository.postMovie(newMovie.name, newMovie.genre, newMovie.plataform);
 
         return res.sendStatus(httpStatus.CREATED);
@@ -66,7 +61,7 @@ async function getWishlist(req: Request, res: Response){
     const userId: number = res.locals.userId;
 
     try {
-        const wishlist: Movie[] = (await moviesRepository.getWishlist(userId)).rows;
+        const wishlist = (await moviesRepository.getWishlist(userId)).rows;
 
         return res.status(httpStatus.OK).send(wishlist)
     } catch (error) {
@@ -105,20 +100,15 @@ async function addMovieToWishlist(req: Request, res: Response){
     }
 }
 
-async function changeStatus(req: Request, res: Response){
+async function changeStatus(req: Request, res: Response, next: NextFunction){
     const userId: number = res.locals.userId;
     const movieId: number = Number(req.params.movieId);
     const review = req.body as Review;
     const status: string = 'Watched';
 
+    changeStatusMiddleware(req, res, next, review, status);
+
     try {
-        const validation = reviewSchema.validate({comments: review.comments, rating: review.rating, status}, {abortEarly: false});
-
-        if(validation.error){
-            const errors = validation.error.details.map(detail => detail.message);
-            return res.status(httpStatus.UNPROCESSABLE_ENTITY).send(errors);
-        }
-
         const isMovieValid = await moviesRepository.isMovieValid(movieId);
 
         if(isMovieValid.rows.length === 0){
