@@ -1,4 +1,4 @@
-import { loginSchema } from "../middlewares/schemas.js";
+import { loginSchema } from "../schemas/schemas.js";
 import bcrypt from 'bcrypt';
 import {v4 as uuidv4} from 'uuid';
 import {Request, Response} from "express";

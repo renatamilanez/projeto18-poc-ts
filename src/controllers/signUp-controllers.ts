@@ -1,5 +1,5 @@
 import { stripHtml } from "string-strip-html";
-import {userSchema} from "../middlewares/schemas.js";
+import {userSchema} from "../schemas/schemas.js";
 import bcrypt from 'bcrypt';
 import * as signUpRepository from "../repositories/signUp-repository.js";
 import { SignUp } from "../protocols/SignUp.js";

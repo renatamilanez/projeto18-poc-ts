@@ -3,6 +3,8 @@ import {Request, Response} from "express";
 import * as moviesRepository from "../repositories/movies-repository.js";
 import {Movie} from "../protocols/Movie";
 import {Review} from "../protocols/Review";
+import {movieSchema, reviewSchema} from "../schemas/schemas.js";
+import { QueryResult } from "pg";
 
 async function getMovies(req: Request, res: Response){
     try {
@@ -45,6 +47,13 @@ async function postMovie(req: Request, res: Response){
     const newMovie = req.body as Movie;
 
     try {
+        const validation = movieSchema.validate({newMovie}, {abortEarly: false});
+
+        if(validation.error){
+            const errors = validation.error.details.map(detail => detail.message);
+            return res.status(httpStatus.UNPROCESSABLE_ENTITY).send(errors);
+        }
+
         await moviesRepository.postMovie(newMovie.name, newMovie.genre, newMovie.plataform);
 
         return res.sendStatus(httpStatus.CREATED);
@@ -72,6 +81,22 @@ async function addMovieToWishlist(req: Request, res: Response){
     const movieId: number = Number(req.params.movieId);
 
     try {
+        const isMovieValid = await moviesRepository.isMovieValid(movieId);
+
+        if(isMovieValid.rows.length === 0){
+            return res.status(httpStatus.NOT_FOUND).send({
+                message: "Movie ID doesn't exist"
+            });
+        }
+
+        const hasAdded = await moviesRepository.hasAddedToWishlist(userId, movieId);
+
+        if(hasAdded.rows.length > 0){
+            return res.status(httpStatus.CONFLICT).send({
+                message: "Movie already added to Wishlist"
+            });
+        }
+
         await moviesRepository.addMovieToWishlist(userId, movieId);
 
         return res.sendStatus(httpStatus.CREATED);
@@ -88,7 +113,33 @@ async function changeStatus(req: Request, res: Response){
     const status: string = 'Watched';
 
     try {
-        let watchCount: number = (await moviesRepository.watchedNumber(userId, movieId)).rows[0].watchCount;
+        const validation = reviewSchema.validate({comments: review.comments, rating: review.rating, status}, {abortEarly: false});
+
+        if(validation.error){
+            const errors = validation.error.details.map(detail => detail.message);
+            return res.status(httpStatus.UNPROCESSABLE_ENTITY).send(errors);
+        }
+
+        const isMovieValid = await moviesRepository.isMovieValid(movieId);
+
+        if(isMovieValid.rows.length === 0){
+            return res.status(httpStatus.NOT_FOUND).send({
+                message: "Movie ID doesn't exist"
+            });
+        }
+        
+        let watchCount: number = 0;
+
+        const hasAdded = await moviesRepository.hasAddedToWishlist(userId, movieId);
+
+        if(hasAdded.rows.length === 0){
+            watchCount += 1;
+            await moviesRepository.addMovieWithReview(userId, movieId, status, review.rating, review.comments, watchCount);
+
+            return res.sendStatus(httpStatus.CREATED);
+        }
+
+        watchCount = (await moviesRepository.watchedNumber(userId, movieId)).rows[0].watchCount;
 
         watchCount += 1;
 

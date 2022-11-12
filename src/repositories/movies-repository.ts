@@ -96,11 +96,38 @@ async function getWishlist(userId: number){
     );
 }
 
+async function isMovieValid(movieId: number){
+    return connection.query(`
+        SELECT "name"
+        FROM movies
+        WHERE id = $1`,
+        [movieId]
+    );
+}
+
+async function hasAddedToWishlist(userId: number, movieId: number) {
+    return connection.query(`
+    SELECT * 
+    FROM "movieStatus" 
+    WHERE "userId" = $1 
+    AND "movieId" = $2;`,
+    [userId, movieId]
+);
+}
+
 async function addMovieToWishlist(userId: number, movieId: number){
     return connection.query(`
         INSERT INTO "movieStatus" ("userId", "movieId")
         VALUES ($1, $2);`,
         [userId, movieId]
+        );
+}
+
+async function addMovieWithReview(userId: number, movieId: number, status: string, rating: number, comments: string, watchCount: number){
+    return connection.query(`
+        INSERT INTO "movieStatus" ("userId", "movieId", "comments", "rating", "status", "watchCount")
+        VALUES ($1, $2, $3, $4, $5, $6);`,
+        [userId, movieId, comments, rating, status, watchCount]
         );
 }
 
@@ -138,5 +165,8 @@ export {
     addMovieToWishlist,
     changeStatus,
     deleteReview,
-    watchedNumber
+    watchedNumber, 
+    hasAddedToWishlist,
+    isMovieValid,
+    addMovieWithReview
 };

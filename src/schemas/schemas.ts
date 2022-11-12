@@ -12,4 +12,16 @@ const loginSchema = Joi.object({
     password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
 });
 
-export {userSchema, loginSchema};
+const movieSchema = Joi.object({
+    name: Joi.string().required(),
+    genre: Joi.string().required(),
+    plataform: Joi.string().required()
+});
+
+const reviewSchema = Joi.object({
+    comments: Joi.string(),
+    rating: Joi.number().min(1).max(10),
+    status: Joi.string().required()
+});
+
+export {userSchema, loginSchema, movieSchema, reviewSchema};
