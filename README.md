@@ -44,10 +44,10 @@ npm i
     
 4. After your logged in, you can access all routes from the API:
 
-    All routes must be accessed using the following Headers, where token is the token received in the sign-in
-   
+  All routes must be accessed using the following Headers, where token is the token received in the sign-in:
+
     Headers: {
-    Authorization: Bearer token
+      Authorization: Bearer token
     }
     
   • GET: `/movies`
