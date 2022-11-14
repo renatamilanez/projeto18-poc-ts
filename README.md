@@ -4,7 +4,7 @@ Proof of concept for TypeScript.
 
 <h2>About</h2>
 
-This project is a Back-End API for a movie organizer with which you can add to a wishlist the movies you want to watch and rate those you already watched.
+This project is a Back-End API for a movie organizer with which you can add to a wishlist the movies you want to watch and rate those you've already watched.
 
 <h2>How to run for development</h2>
 
