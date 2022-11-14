@@ -23,6 +23,7 @@ npm i
 
 1. Open the ThunderClient, Imsonia or your preferrable extesion to test routes.
 2. First, you need to sign-up:
+
   • POST:`/signup`
     Body: {
       "name": "John",
@@ -32,6 +33,7 @@ npm i
       }
     
 3. Then, you need to sign-in:
+
   • POST: `/signin`
     Body: {
       "email": "john@test.com",
@@ -39,34 +41,47 @@ npm i
       }
     
 4. After your logged in, you can access all routes from the API:
-    *All routes must be accessed using the following Headers, where token is the token received in the sign-in*
+   
+   *All routes must be accessed using the following Headers, where token is the token received in the sign-in*
+   
     Headers: {
     Authorization: Bearer token
     }
     
-  1. GET: `/movies`
-  2. GET: `/movies/:movieId`
-  3. GET: `/movies/plataform/:plataformId`
+  • GET: `/movies`
+  
+  • GET: `/movies/:movieId`
+  
+  • GET: `/movies/plataform/:plataformId`
+  
     *Where "plataformId" is the id number from the plataform you want to know the movies available"
-  4. POST: `/movies`
+    
+  • POST: `/movies`
+  
     Body: {
       "name": "Shrek",
       "plataform": "Netflix",
       "genre": "Animation"
     }
+    
   • POST: `/wishlist/:movieId`
+  
       *Where "movieId" is the id number from the movie you want to add to the wishlist"*
       
   • GET: `/wishlist`
   
   • PUT: `/wishlist/:movieId`
+  
       *Where "movieId" is the id number from the movie you want to mark as "Watched" and want to rate and/or add a review"*
+      
       Body: {
         "status": "Watched",
         "comments": "This is a great movie!",
         "rating": 8
       }
+      
       *Comments and rating are not mandatory*
       
   • DELETE: `/wishlist/:movieId`
+  
     *Where "movieId" is the id number from the movie you want to remove from your wishlist*
