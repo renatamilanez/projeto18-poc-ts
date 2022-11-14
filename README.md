@@ -25,6 +25,7 @@ npm i
 2. First, you need to sign-up:
 
   • POST:`/signup`
+    
     Body: {
       "name": "John",
       "email": "john@test.com",
@@ -35,14 +36,15 @@ npm i
 3. Then, you need to sign-in:
 
   • POST: `/signin`
+  
     Body: {
       "email": "john@test.com",
       "password": "123456"
       }
     
 4. After your logged in, you can access all routes from the API:
-   
-   *All routes must be accessed using the following Headers, where token is the token received in the sign-in*
+
+    All routes must be accessed using the following Headers, where token is the token received in the sign-in
    
     Headers: {
     Authorization: Bearer token
@@ -52,9 +54,11 @@ npm i
   
   • GET: `/movies/:movieId`
   
+    Where "movieId" is the id number from the movie you want to get the information about"
+  
   • GET: `/movies/plataform/:plataformId`
   
-    *Where "plataformId" is the id number from the plataform you want to know the movies available"
+    Where "plataformId" is the id number from the plataform you want to know the movies available"
     
   • POST: `/movies`
   
@@ -66,22 +70,21 @@ npm i
     
   • POST: `/wishlist/:movieId`
   
-      *Where "movieId" is the id number from the movie you want to add to the wishlist"*
+      Where "movieId" is the id number from the movie you want to add to the wishlist"
       
   • GET: `/wishlist`
   
   • PUT: `/wishlist/:movieId`
   
-      *Where "movieId" is the id number from the movie you want to mark as "Watched" and want to rate and/or add a review"*
+      Where "movieId" is the id number from the movie you want to mark as "Watched" and want to rate and/or add a review"
       
       Body: {
         "status": "Watched",
         "comments": "This is a great movie!",
         "rating": 8
       }
-      
-      *Comments and rating are not mandatory*
+      Comments and rating are not mandatory
       
   • DELETE: `/wishlist/:movieId`
   
-    *Where "movieId" is the id number from the movie you want to remove from your wishlist*
+    Where "movieId" is the id number from the movie you want to remove from your wishlist
