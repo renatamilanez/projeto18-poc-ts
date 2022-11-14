@@ -44,11 +44,11 @@ npm i
     Authorization: Bearer token
     }
     
-  • GET: `/movies`
-  • GET: `/movies/:movieId`
-  • GET: `/movies/plataform/:plataformId`
+  1. GET: `/movies`
+  2. GET: `/movies/:movieId`
+  3. GET: `/movies/plataform/:plataformId`
     *Where "plataformId" is the id number from the plataform you want to know the movies available"
-  • POST: `/movies`
+  4. POST: `/movies`
     Body: {
       "name": "Shrek",
       "plataform": "Netflix",
@@ -56,7 +56,9 @@ npm i
     }
   • POST: `/wishlist/:movieId`
       *Where "movieId" is the id number from the movie you want to add to the wishlist"*
+      
   • GET: `/wishlist`
+  
   • PUT: `/wishlist/:movieId`
       *Where "movieId" is the id number from the movie you want to mark as "Watched" and want to rate and/or add a review"*
       Body: {
@@ -65,5 +67,6 @@ npm i
         "rating": 8
       }
       *Comments and rating are not mandatory*
+      
   • DELETE: `/wishlist/:movieId`
     *Where "movieId" is the id number from the movie you want to remove from your wishlist*
