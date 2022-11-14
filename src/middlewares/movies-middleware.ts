@@ -1,24 +1,25 @@
 import httpStatus from "http-status";
-import {NextFunction, Request, Response} from "express";
+import {Request, Response} from "express";
 import {Movie} from "../protocols/Movie";
 import {Review} from "../protocols/Review";
 import {movieSchema, reviewSchema} from "../schemas/schemas.js";
 
-async function newMovieMiddleware(req: Request, res: Response, next: NextFunction, newMovie: Movie){
-    const validation = movieSchema.validate({newMovie}, {abortEarly: false});
+async function newMovieMiddleware(req: Request, res: Response, newMovie: Movie){
+    const name = newMovie.name;
+    const plataform = newMovie.plataform;
+    const genre = newMovie.genre;
+
+    const validation = movieSchema.validate({name, plataform, genre}, {abortEarly: false});
 
     if(validation.error){
         const errors = validation.error.details.map(detail => detail.message);
         return res.status(httpStatus.UNPROCESSABLE_ENTITY).send(errors);
     }
-    
-    next();
 }
 
 async function changeStatusMiddleware(
     req: Request, 
-    res: Response, 
-    next: NextFunction, 
+    res: Response,
     review: Review, 
     status: string){
 
@@ -28,8 +29,6 @@ async function changeStatusMiddleware(
         const errors = validation.error.details.map(detail => detail.message);
         return res.status(httpStatus.UNPROCESSABLE_ENTITY).send(errors);
     }
-
-    next();
 }
 
 export {newMovieMiddleware, changeStatusMiddleware};

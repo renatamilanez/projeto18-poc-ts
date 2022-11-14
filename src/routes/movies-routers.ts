@@ -11,6 +11,6 @@ router.post('/movies', authMiddleware, postMovie);
 router.get('/wishlist', authMiddleware, getWishlist)
 router.post('/wishlist/:movieId', authMiddleware, addMovieToWishlist);
 router.put('/wishlist/:movieId', authMiddleware, changeStatus);
-router.delete('/movies/:movieId', authMiddleware, deleteMovie);
+router.delete('/wishlist/:movieId', authMiddleware, deleteMovie);
 
 export default router;

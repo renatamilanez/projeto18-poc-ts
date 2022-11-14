@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import {NextFunction, Request, Response} from "express";
+import { Request, Response} from "express";
 import * as moviesRepository from "../repositories/movies-repository.js";
 import {Movie} from "../protocols/Movie";
 import {Review} from "../protocols/Review";
@@ -42,12 +42,20 @@ async function getMoviesByPlataform(req: Request, res: Response){
     }
 }
 
-async function postMovie(req: Request, res: Response, next: NextFunction){
+async function postMovie(req: Request, res: Response){
     const newMovie = req.body as Movie;
 
-    newMovieMiddleware(req, res, next, newMovie);
+    newMovieMiddleware(req, res, newMovie);
 
     try {
+        const duplicated = await moviesRepository.isMovieDuplicated(newMovie.name);
+
+        if(duplicated.rows.length > 0){
+            return res.status(httpStatus.CONFLICT).send({
+                message: "This movie is already registered!"
+            });
+        }
+        
         await moviesRepository.postMovie(newMovie.name, newMovie.genre, newMovie.plataform);
 
         return res.sendStatus(httpStatus.CREATED);
@@ -100,13 +108,13 @@ async function addMovieToWishlist(req: Request, res: Response){
     }
 }
 
-async function changeStatus(req: Request, res: Response, next: NextFunction){
+async function changeStatus(req: Request, res: Response){
     const userId: number = res.locals.userId;
     const movieId: number = Number(req.params.movieId);
     const review = req.body as Review;
     const status: string = 'Watched';
 
-    changeStatusMiddleware(req, res, next, review, status);
+    changeStatusMiddleware(req, res, review, status);
 
     try {
         const isMovieValid = await moviesRepository.isMovieValid(movieId);

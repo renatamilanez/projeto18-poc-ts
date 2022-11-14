@@ -174,6 +174,14 @@ async function deleteReview(userId: number, movieId: number): Promise<QueryResul
     );
 }
 
+async function isMovieDuplicated(movie: string): Promise<QueryResult<String>> {
+    return connection.query(
+        `SELECT * FROM movies
+        WHERE name = $1`,
+        [movie]
+    );
+}
+
 export {
     getAllMovies, 
     getMovie, 
@@ -186,5 +194,6 @@ export {
     watchedNumber, 
     hasAddedToWishlist,
     isMovieValid,
-    addMovieWithReview
+    addMovieWithReview,
+    isMovieDuplicated
 };
